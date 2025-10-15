@@ -1,0 +1,161 @@
+local _G_NotifyAPI = {}
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ScreenGui"
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local Frame = Instance.new("Frame")
+Frame.Name = "Frame"
+Frame.Position = UDim2.new(0.5, 0, 0.5, 0) -- Initial position, will be adjusted by notify function
+Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame.Size = UDim2.new(0, 582, 0, 29) -- This will be overridden by the notify function
+Frame.BackgroundColor3 = Color3.new(0.176471, 0.176471, 0.176471)
+Frame.BorderSizePixel = 10
+Frame.BorderColor3 = Color3.new(0, 0, 0)
+Frame.LayoutOrder = 10
+Frame.Parent = ScreenGui
+
+local TextLabel = Instance.new("TextLabel")
+TextLabel.Name = "TextLabel"
+TextLabel.Position = UDim2.new(0.5, 0, 0.5, 0) -- Centered within the frame
+TextLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+TextLabel.Size = UDim2.new(0, 488, 0, 27) -- This will be overridden by the notify function
+TextLabel.BackgroundColor3 = Color3.new(0.172549, 0.172549, 0.172549)
+TextLabel.BorderSizePixel = 0
+TextLabel.BorderColor3 = Color3.new(0, 0, 0)
+TextLabel.Text = "Succesfully hit test123"
+TextLabel.TextColor3 = Color3.new(1, 1, 1)
+TextLabel.TextSize = 19
+TextLabel.Font = Enum.Font.Ubuntu
+TextLabel.TextWrapped = true
+TextLabel.LineHeight = 3
+TextLabel.Parent = Frame
+
+local toframe = Instance.new("UICorner")
+toframe.Name = "toframe"
+toframe.Parent = Frame
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Name = "UIStroke"
+UIStroke.Color = Color3.new(0.690196, 0.690196, 0.690196)
+UIStroke.Transparency = 0.5
+UIStroke.Parent = Frame
+
+local TweenService = game:GetService("TweenService")
+local TextService = game:GetService("TextService")
+
+-- Define positions
+local MIDDLE_ON_SCREEN = UDim2.new(0.5, 10, 0.7, 0) -- Centered horizontally, adjusted Y for better visual centering, added X offset
+local MIDDLE_OFF_SCREEN = UDim2.new(0.5, 0, -0.1, 0) -- Centered horizontally, off screen
+
+-- Padding for the frame around the text
+local TEXT_PADDING = 20 -- Horizontal padding
+local VERTICAL_PADDING = 10 -- Vertical padding
+
+local function calculateTextSize(text, fontSize, font, frameWidth)
+    -- Calculate the text bounds using TextService
+    local textBounds = TextService:GetTextSize(
+        text,
+        fontSize,
+        font,
+        Vector2.new(frameWidth, math.huge) -- Unlimited height for calculation
+    )
+    
+    return textBounds
+end
+
+local function notify(message, positionType)
+    positionType = positionType or "middle" -- Default to middle
+    
+    -- Calculate the required size for the text
+    local textBounds = calculateTextSize(
+        message, 
+        TextLabel.TextSize, 
+        TextLabel.Font,  -- Use Font instead of FontFace
+        500 -- Maximum width before wrapping
+    )
+    
+    -- Calculate frame size based on text bounds with padding
+    local frameWidth = math.min(textBounds.X + TEXT_PADDING * 2, 600) -- Max width of 600
+    local frameHeight = textBounds.Y + VERTICAL_PADDING * 2
+    
+    -- Update TextLabel size to fit the text
+    TextLabel.Size = UDim2.new(0, frameWidth - TEXT_PADDING * 2, 0, frameHeight - VERTICAL_PADDING * 2)
+    TextLabel.Text = message
+    
+    -- Update Frame size
+    Frame.Size = UDim2.new(0, frameWidth, 0, frameHeight)
+    
+    -- Adjust right position based on the actual frame width and AnchorPoint
+    local adjustedRightUpOnScreen = UDim2.new(1, -frameWidth * 0.5 - TEXT_PADDING, 0.05, 0) -- Adjusted to be TEXT_PADDING pixels from the right edge
+    local adjustedRightUpOffScreen = UDim2.new(1, frameWidth * 0.5 + TEXT_PADDING, 0.05, 0) -- Off screen to the right
+    
+    -- Adjust left position based on the actual frame width and AnchorPoint
+    local adjustedLeftUpOnScreen = UDim2.new(0, TEXT_PADDING + (frameWidth * 0.5), 0.05, 0) -- Adjusted to be TEXT_PADDING pixels from the left edge
+    local adjustedLeftUpOffScreen = UDim2.new(0, -(frameWidth * 0.5 + 50), 0.05, 0) -- Off screen to the left, added extra offset
+
+    local currentOnScreenPos
+    local currentOffScreenPos
+
+    if positionType == "leftUp" then
+        currentOnScreenPos = adjustedLeftUpOnScreen
+        currentOffScreenPos = adjustedLeftUpOffScreen
+    elseif positionType == "rightUp" then
+        currentOnScreenPos = adjustedRightUpOnScreen
+        currentOffScreenPos = adjustedRightUpOffScreen
+    else -- middle
+        currentOnScreenPos = MIDDLE_ON_SCREEN
+        currentOffScreenPos = MIDDLE_OFF_SCREEN
+    end
+
+    -- Set initial position off-screen for moving notifications, or on-screen for fading only
+    if positionType ~= "middle" then
+        Frame.Position = currentOffScreenPos
+    else
+        Frame.Position = currentOnScreenPos
+    end
+    Frame.BackgroundTransparency = 1
+    TextLabel.Transparency = 1
+    TextLabel.BackgroundTransparency = 1
+
+    local appearTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 0)
+    local disappearTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, 0)
+
+    local frameAppearProperties = {BackgroundTransparency = 0, Transparency = 0}
+    local frameDisappearProperties = {BackgroundTransparency = 1, Transparency = 1}
+
+    local textAppearProperties = {Transparency = 0, BackgroundTransparency = 0}
+    local textDisappearProperties = {Transparency = 1, BackgroundTransparency = 1}
+
+    if positionType ~= "middle" then
+        frameAppearProperties.Position = currentOnScreenPos
+        frameDisappearProperties.Position = currentOffScreenPos
+    end
+
+    local frameAppearTween = TweenService:Create(Frame, appearTweenInfo, frameAppearProperties)
+    local frameDisappearTween = TweenService:Create(Frame, disappearTweenInfo, frameDisappearProperties)
+
+    local strokeAppearTween = TweenService:Create(UIStroke, appearTweenInfo, {Transparency = 0.5})
+    local strokeDisappearTween = TweenService:Create(UIStroke, disappearTweenInfo, {Transparency = 1})
+    
+    local textAppearTween = TweenService:Create(TextLabel, appearTweenInfo, textAppearProperties)
+    local textDisappearTween = TweenService:Create(TextLabel, disappearTweenInfo, textDisappearProperties)
+
+    frameAppearTween:Play()
+    strokeAppearTween:Play()
+    textAppearTween:Play()
+    frameAppearTween.Completed:Wait()
+    
+    wait(3) -- Display for 3 seconds
+
+    frameDisappearTween:Play()
+    strokeDisappearTween:Play()
+    textDisappearTween:Play()
+    frameDisappearTween.Completed:Wait()
+end
+
+-- Expose the notify function as part of the API
+_G_NotifyAPI.notify = notify
+
+return _G_NotifyAPI
