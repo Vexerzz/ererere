@@ -1,0 +1,305 @@
+-- Lighting API
+local LightingAPI = {}
+local light = game:GetService("Lighting")
+
+-- Predefined skyboxes
+local Skyboxes = {
+    Sunset = {
+        Name = "Sunset",
+        SkyboxBk = "rbxassetid://600830446",
+        SkyboxDn = "rbxassetid://600831635",
+        SkyboxFt = "rbxassetid://600832720",
+        SkyboxLf = "rbxassetid://600886090",
+        SkyboxRt = "rbxassetid://600833862",
+        SkyboxUp = "rbxassetid://600835177"
+    },
+    Arctic = {
+        Name = "Arctic",
+        SkyboxBk = "http://www.roblox.com/asset/?id=225469390",
+        SkyboxDn = "http://www.roblox.com/asset/?id=225469395",
+        SkyboxFt = "http://www.roblox.com/asset/?id=225469403",
+        SkyboxLf = "http://www.roblox.com/asset/?id=225469450",
+        SkyboxRt = "http://www.roblox.com/asset/?id=225469471",
+        SkyboxUp = "http://www.roblox.com/asset/?id=225469481"
+    },
+    Space = {
+        Name = "Space",
+        SkyboxBk = "http://www.roblox.com/asset/?id=166509999",
+        SkyboxDn = "http://www.roblox.com/asset/?id=166510057",
+        SkyboxFt = "http://www.roblox.com/asset/?id=166510116",
+        SkyboxLf = "http://www.roblox.com/asset/?id=166510092",
+        SkyboxRt = "http://www.roblox.com/asset/?id=166510131",
+        SkyboxUp = "http://www.roblox.com/asset/?id=166510114"
+    },
+    RobloxDefault = {
+        Name = "Roblox Default",
+        SkyboxBk = "rbxasset://textures/sky/sky512_bk.tex",
+        SkyboxDn = "rbxasset://textures/sky/sky512_dn.tex",
+        SkyboxFt = "rbxasset://textures/sky/sky512_ft.tex",
+        SkyboxLf = "rbxasset://textures/sky/sky512_lf.tex",
+        SkyboxRt = "rbxasset://textures/sky/sky512_rt.tex",
+        SkyboxUp = "rbxasset://textures/sky/sky512_up.tex"
+    },
+    RedNight = {
+        Name = "Red Night", 
+        SkyboxBk = "http://www.roblox.com/Asset/?ID=401664839",
+        SkyboxDn = "http://www.roblox.com/Asset/?ID=401664862",
+        SkyboxFt = "http://www.roblox.com/Asset/?ID=401664960",
+        SkyboxLf = "http://www.roblox.com/Asset/?ID=401664881",
+        SkyboxRt = "http://www.roblox.com/Asset/?ID=401664901",
+        SkyboxUp = "http://www.roblox.com/Asset/?ID=401664936"
+    },
+    DeepSpace = {
+        Name = "Deep Space", 
+        SkyboxBk = "http://www.roblox.com/asset/?id=149397692",
+        SkyboxDn = "http://www.roblox.com/asset/?id=149397686",
+        SkyboxFt = "http://www.roblox.com/asset/?id=149397697",
+        SkyboxLf = "http://www.roblox.com/asset/?id=149397684",
+        SkyboxRt = "http://www.roblox.com/asset/?id=149397688",
+        SkyboxUp = "http://www.roblox.com/asset/?id=149397702"
+    },
+    PinkSkies = {
+        Name = "Pink Skies", 
+        SkyboxBk = "http://www.roblox.com/asset/?id=151165214",
+        SkyboxDn = "http://www.roblox.com/asset/?id=151165197",
+        SkyboxFt = "http://www.roblox.com/asset/?id=151165224",
+        SkyboxLf = "http://www.roblox.com/asset/?id=151165191",
+        SkyboxRt = "http://www.roblox.com/asset/?id=151165206",
+        SkyboxUp = "http://www.roblox.com/asset/?id=151165227"
+    },
+    PurpleSunset = {
+        Name = "Purple Sunset", 
+        SkyboxBk = "rbxassetid://264908339",
+        SkyboxDn = "rbxassetid://264907909",
+        SkyboxFt = "rbxassetid://264909420",
+        SkyboxLf = "rbxassetid://264909758",
+        SkyboxRt = "rbxassetid://264908886",
+        SkyboxUp = "rbxassetid://264907379"
+    },
+    BlueNight = {
+        Name = "Blue Night", 
+        SkyboxBk = "http://www.roblox.com/Asset/?ID=12064107",
+        SkyboxDn = "http://www.roblox.com/Asset/?ID=12064152",
+        SkyboxFt = "http://www.roblox.com/Asset/?ID=12064121",
+        SkyboxLf = "http://www.roblox.com/Asset/?ID=12063984",
+        SkyboxRt = "http://www.roblox.com/Asset/?ID=12064115",
+        SkyboxUp = "http://www.roblox.com/Asset/?ID=12064131"
+    },
+    BlossomDaylight = {
+        Name = "Blossom Daylight", 
+        SkyboxBk = "http://www.roblox.com/asset/?id=271042516",
+        SkyboxDn = "http://www.roblox.com/asset/?id=271077243",
+        SkyboxFt = "http://www.roblox.com/asset/?id=271042556",
+        SkyboxLf = "http://www.roblox.com/asset/?id=271042310",
+        SkyboxRt = "http://www.roblox.com/asset/?id=271042467",
+        SkyboxUp = "http://www.roblox.com/asset/?id=271077958"
+    },
+    BlueNebula = {
+        Name = "Blue Nebula", 
+        SkyboxBk = "http://www.roblox.com/asset?id=135207744",
+        SkyboxDn = "http://www.roblox.com/asset?id=135207662",
+        SkyboxFt = "http://www.roblox.com/asset?id=135207770",
+        SkyboxLf = "http://www.roblox.com/asset?id=135207615",
+        SkyboxRt = "http://www.roblox.com/asset?id=135207695",
+        SkyboxUp = "http://www.roblox.com/asset?id=135207794"
+    },
+    BluePlanet = {
+        Name = "Blue Planet", 
+        SkyboxBk = "rbxassetid://218955819",
+        SkyboxDn = "rbxassetid://218953419",
+        SkyboxFt = "rbxassetid://218954524",
+        SkyboxLf = "rbxassetid://218958493",
+        SkyboxRt = "rbxassetid://218957134",
+        SkyboxUp = "rbxassetid://218950090"
+    },
+    DeepBlue = {
+        Name = "Deep Blue", 
+        SkyboxBk = "http://www.roblox.com/asset/?id=159248188",
+        SkyboxDn = "http://www.roblox.com/asset/?id=159248183",
+        SkyboxFt = "http://www.roblox.com/asset/?id=159248187",
+        SkyboxLf = "http://www.roblox.com/asset/?id=159248173",
+        SkyboxRt = "http://www.roblox.com/asset/?id=159248192",
+        SkyboxUp = "http://www.roblox.com/asset/?id=159248176"
+    }
+}
+
+-- Ensure Sky object exists
+local function EnsureSky()
+    local sky = light:FindFirstChild("Sky")
+    if not sky then
+        sky = Instance.new("Sky")
+        sky.Parent = light
+    end
+    return sky
+end
+
+-- Ensure Atmosphere object exists
+local function EnsureAtmosphere()
+    local atmosphere = light:FindFirstChild("Atmosphere")
+    if not atmosphere then
+        atmosphere = Instance.new("Atmosphere")
+        atmosphere.Parent = light
+    end
+    return atmosphere
+end
+
+-- Lighting Functions
+function LightingAPI.SetAmbient(color)
+    light.Ambient = color
+end
+
+function LightingAPI.SetBrightness(value)
+    light.Brightness = value
+end
+
+function LightingAPI.SetOutdoorAmbient(color)
+    light.OutdoorAmbient = color
+end
+
+function LightingAPI.SetColorShiftTop(color)
+    light.ColorShift_Top = color
+end
+
+function LightingAPI.SetColorShiftBottom(color)
+    light.ColorShift_Bottom = color
+end
+
+function LightingAPI.SetTimeOfDay(time)
+    light.TimeOfDay = time
+end
+
+function LightingAPI.SetClockTime(time)
+    light.ClockTime = time
+end
+
+function LightingAPI.SetExposureCompensation(value)
+    light.ExposureCompensation = value
+end
+
+function LightingAPI.SetFogColor(color)
+    light.FogColor = color
+end
+
+function LightingAPI.SetFogStart(distance)
+    light.FogStart = distance
+end
+
+function LightingAPI.SetFogEnd(distance)
+    light.FogEnd = distance
+end
+
+-- Skybox Functions
+function LightingAPI.SetSkyBox(skyboxName)
+    local skybox = Skyboxes[skyboxName]
+    if not skybox then
+        error("Skybox '" .. tostring(skyboxName) .. "' not found!")
+        return
+    end
+    
+    local sky = EnsureSky()
+    sky.SkyboxBk = skybox.SkyboxBk
+    sky.SkyboxDn = skybox.SkyboxDn
+    sky.SkyboxFt = skybox.SkyboxFt
+    sky.SkyboxLf = skybox.SkyboxLf
+    sky.SkyboxRt = skybox.SkyboxRt
+    sky.SkyboxUp = skybox.SkyboxUp
+end
+
+function LightingAPI.SetCustomSkyBox(skyboxTable)
+    local sky = EnsureSky()
+    sky.SkyboxBk = skyboxTable.SkyboxBk or sky.SkyboxBk
+    sky.SkyboxDn = skyboxTable.SkyboxDn or sky.SkyboxDn
+    sky.SkyboxFt = skyboxTable.SkyboxFt or sky.SkyboxFt
+    sky.SkyboxLf = skyboxTable.SkyboxLf or sky.SkyboxLf
+    sky.SkyboxRt = skyboxTable.SkyboxRt or sky.SkyboxRt
+    sky.SkyboxUp = skyboxTable.SkyboxUp or sky.SkyboxUp
+end
+
+function LightingAPI.GetAvailableSkyboxes()
+    local skyboxList = {}
+    for name, _ in pairs(Skyboxes) do
+        table.insert(skyboxList, name)
+    end
+    return skyboxList
+end
+
+-- Atmosphere Functions
+function LightingAPI.SetAtmosphereColor(color)
+    local atmosphere = EnsureAtmosphere()
+    atmosphere.Color = color
+end
+
+function LightingAPI.SetAtmosphereDensity(value)
+    local atmosphere = EnsureAtmosphere()
+    atmosphere.Density = value
+end
+
+function LightingAPI.SetAtmosphereOffset(value)
+    local atmosphere = EnsureAtmosphere()
+    atmosphere.Offset = value
+end
+
+function LightingAPI.SetAtmosphereGlare(value)
+    local atmosphere = EnsureAtmosphere()
+    atmosphere.Glare = value
+end
+
+function LightingAPI.SetAtmosphereHaze(value)
+    local atmosphere = EnsureAtmosphere()
+    atmosphere.Haze = value
+end
+
+-- Reset Functions
+function LightingAPI.ResetLighting()
+    light.Ambient = Color3.fromRGB(127, 127, 127)
+    light.Brightness = 1
+    light.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+    light.ColorShift_Top = Color3.fromRGB(255, 255, 255)
+    light.ColorShift_Bottom = Color3.fromRGB(255, 255, 255)
+    light.TimeOfDay = "14:00:00"
+    light.ClockTime = 14
+    light.ExposureCompensation = 0
+    light.FogColor = Color3.fromRGB(191, 191, 191)
+    light.FogStart = 0
+    light.FogEnd = 100000
+end
+
+function LightingAPI.ResetSkybox()
+    local sky = EnsureSky()
+    sky.SkyboxBk = ""
+    sky.SkyboxDn = ""
+    sky.SkyboxFt = ""
+    sky.SkyboxLf = ""
+    sky.SkyboxRt = ""
+    sky.SkyboxUp = ""
+end
+
+function LightingAPI.ResetAtmosphere()
+    local atmosphere = EnsureAtmosphere()
+    atmosphere.Color = Color3.fromRGB(199, 199, 199)
+    atmosphere.Density = 0.4
+    atmosphere.Offset = 0
+    atmosphere.Glare = 0
+    atmosphere.Haze = 0
+end
+
+-- Quick preset functions
+function LightingAPI.SetPresetDay()
+    LightingAPI.ResetLighting()
+    LightingAPI.SetTimeOfDay("12:00:00")
+    LightingAPI.SetBrightness(2)
+end
+
+function LightingAPI.SetPresetNight()
+    LightingAPI.SetTimeOfDay("00:00:00")
+    LightingAPI.SetBrightness(0.1)
+    LightingAPI.SetAmbient(Color3.fromRGB(50, 50, 100))
+end
+
+function LightingAPI.SetPresetSunset()
+    LightingAPI.SetTimeOfDay("18:30:00")
+    LightingAPI.SetAmbient(Color3.fromRGB(255, 150, 100))
+    LightingAPI.SetColorShiftTop(Color3.fromRGB(255, 100, 50))
+end
+
+return LightingAPI
