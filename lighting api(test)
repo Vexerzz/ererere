@@ -2,7 +2,6 @@
 local LightingAPI = {}
 local light = game:GetService("Lighting")
 
--- Predefined skyboxes
 local Skyboxes = {
     Sunset = {
         Name = "Sunset",
@@ -123,7 +122,7 @@ local Skyboxes = {
     }
 }
 
--- Ensure Sky object exists
+
 local function EnsureSky()
     local sky = light:FindFirstChild("Sky")
     if not sky then
@@ -133,7 +132,7 @@ local function EnsureSky()
     return sky
 end
 
--- Ensure Atmosphere object exists
+
 local function EnsureAtmosphere()
     local atmosphere = light:FindFirstChild("Atmosphere")
     if not atmosphere then
@@ -143,7 +142,7 @@ local function EnsureAtmosphere()
     return atmosphere
 end
 
--- Lighting Functions
+
 function LightingAPI.SetAmbient(color)
     light.Ambient = color
 end
@@ -188,7 +187,7 @@ function LightingAPI.SetFogEnd(distance)
     light.FogEnd = distance
 end
 
--- Skybox Functions
+
 function LightingAPI.SetSkyBox(skyboxName)
     local skybox = Skyboxes[skyboxName]
     if not skybox then
@@ -283,7 +282,7 @@ function LightingAPI.ResetAtmosphere()
     atmosphere.Haze = 0
 end
 
--- Quick preset functions
+
 function LightingAPI.SetPresetDay()
     LightingAPI.ResetLighting()
     LightingAPI.SetTimeOfDay("12:00:00")
